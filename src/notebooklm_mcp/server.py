@@ -308,7 +308,9 @@ def notebook_query(
     source_ids: list[str] | None = None,
     conversation_id: str | None = None,
 ) -> dict[str, Any]:
-    """Ask a question about notebook sources.
+    """Ask AI about EXISTING sources already in notebook. NOT for finding new sources.
+
+    Use research_start instead for: deep research, web search, find new sources, Drive search.
 
     Args:
         notebook_id: Notebook UUID
@@ -591,12 +593,15 @@ def research_start(
     notebook_id: str | None = None,
     title: str | None = None,
 ) -> dict[str, Any]:
-    """Start research to discover sources. Use research_status to poll.
+    """Deep research / fast research: Search web or Google Drive to FIND NEW sources.
+
+    Use this for: "deep research on X", "find sources about Y", "search web for Z", "search Drive".
+    Workflow: research_start -> poll research_status -> research_import.
 
     Args:
-        query: Search query
-        source: web|drive
-        mode: fast (~10 sources, 30s) | deep (~40 sources, web only)
+        query: What to search for (e.g. "quantum computing advances")
+        source: web|drive (where to search)
+        mode: fast (~30s, ~10 sources) | deep (~5min, ~40 sources, web only)
         notebook_id: Existing notebook (creates new if not provided)
         title: Title for new notebook
     """
