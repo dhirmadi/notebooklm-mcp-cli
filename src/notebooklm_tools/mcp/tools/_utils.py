@@ -80,30 +80,51 @@ def get_mcp_instance():
 _tool_registry: list[tuple] = []
 
 
+import inspect
+
 def logged_tool():
     """Decorator that combines @mcp.tool() with MCP request/response logging.
     
     Tools are registered immediately with the MCP server when decorated.
+    Supports both synchronous and asynchronous functions.
     """
     def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            tool_name = func.__name__
-            if mcp_logger.isEnabledFor(logging.DEBUG):
-                # Log request
-                params = {k: v for k, v in kwargs.items() if v is not None}
-                mcp_logger.debug(f"MCP Request: {tool_name}({json.dumps(params, default=str)})")
-            
-            result = func(*args, **kwargs)
-            
-            if mcp_logger.isEnabledFor(logging.DEBUG):
-                # Log response (truncate if too long)
-                result_str = json.dumps(result, default=str)
-                if len(result_str) > 1000:
-                    result_str = result_str[:1000] + "..."
-                mcp_logger.debug(f"MCP Response: {tool_name} -> {result_str}")
-            
-            return result
+        is_async = inspect.iscoroutinefunction(func)
+        
+        if is_async:
+            @functools.wraps(func)
+            async def wrapper(*args, **kwargs):
+                tool_name = func.__name__
+                if mcp_logger.isEnabledFor(logging.DEBUG):
+                    params = {k: v for k, v in kwargs.items() if v is not None}
+                    mcp_logger.debug(f"MCP Request: {tool_name}({json.dumps(params, default=str)})")
+                
+                result = await func(*args, **kwargs)
+                
+                if mcp_logger.isEnabledFor(logging.DEBUG):
+                    result_str = json.dumps(result, default=str)
+                    if len(result_str) > 1000:
+                        result_str = result_str[:1000] + "..."
+                    mcp_logger.debug(f"MCP Response: {tool_name} -> {result_str}")
+                
+                return result
+        else:
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                tool_name = func.__name__
+                if mcp_logger.isEnabledFor(logging.DEBUG):
+                    params = {k: v for k, v in kwargs.items() if v is not None}
+                    mcp_logger.debug(f"MCP Request: {tool_name}({json.dumps(params, default=str)})")
+                
+                result = func(*args, **kwargs)
+                
+                if mcp_logger.isEnabledFor(logging.DEBUG):
+                    result_str = json.dumps(result, default=str)
+                    if len(result_str) > 1000:
+                        result_str = result_str[:1000] + "..."
+                    mcp_logger.debug(f"MCP Response: {tool_name} -> {result_str}")
+                
+                return result
         
         # Store for later registration
         _tool_registry.append((func.__name__, wrapper))

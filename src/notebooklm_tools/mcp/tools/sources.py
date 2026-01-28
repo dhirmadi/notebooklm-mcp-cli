@@ -78,8 +78,18 @@ def source_add(
         elif source_type == "drive":
             if not document_id:
                 return {"status": "error", "error": "document_id is required for source_type='drive'"}
+            
+            # Convert doc_type shorthand to MIME type
+            mime_types = {
+                "doc": "application/vnd.google-apps.document",
+                "slides": "application/vnd.google-apps.presentation",
+                "sheets": "application/vnd.google-apps.spreadsheet",
+                "pdf": "application/pdf",
+            }
+            mime_type = mime_types.get(doc_type, "application/vnd.google-apps.document")
+            
             result = client.add_drive_source(
-                notebook_id, document_id, title or "Drive Document", doc_type
+                notebook_id, document_id, title or "Drive Document", mime_type
             )
             if result and result.get("id"):
                 return {
@@ -130,14 +140,16 @@ def source_list_drive(notebook_id: str) -> dict[str, Any]:
             source_info = {
                 "id": source.get("id"),
                 "title": source.get("title"),
-                "type": source.get("type"),
+                "type": source.get("source_type_name"),  # Use correct key from client
             }
 
-            if source.get("type") in ("google_doc", "google_slides", "google_sheets"):
+            # Use can_sync flag from client to identify Drive sources
+            if source.get("can_sync"):
                 # Check if stale
                 freshness = client.check_source_freshness(source["id"])
                 source_info["stale"] = freshness.get("stale", False)
                 source_info["last_sync"] = freshness.get("last_sync")
+                source_info["drive_doc_id"] = source.get("drive_doc_id")
                 drive_sources.append(source_info)
             else:
                 other_sources.append(source_info)

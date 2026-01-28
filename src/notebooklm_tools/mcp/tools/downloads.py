@@ -23,7 +23,7 @@ OUTPUT_FORMATS = Literal["json", "markdown", "html"]
 
 
 @logged_tool()
-def download_artifact(
+async def download_artifact(
     notebook_id: str,
     artifact_type: str,
     output_path: str,
@@ -75,27 +75,26 @@ def download_artifact(
         saved_path = None
         
         # Route to appropriate download method
-        # Async methods use asyncio.run() for sync execution
         if artifact_type == "audio":
-            saved_path = asyncio.run(client.download_audio(
+            saved_path = await client.download_audio(
                 notebook_id, output_path, artifact_id, progress_callback=None
-            ))
+            )
         elif artifact_type == "video":
-            saved_path = asyncio.run(client.download_video(
+            saved_path = await client.download_video(
                 notebook_id, output_path, artifact_id, progress_callback=None
-            ))
+            )
         elif artifact_type == "report":
             saved_path = client.download_report(notebook_id, output_path, artifact_id)
         elif artifact_type == "mind_map":
             saved_path = client.download_mind_map(notebook_id, output_path, artifact_id)
         elif artifact_type == "slide_deck":
-            saved_path = asyncio.run(client.download_slide_deck(
+            saved_path = await client.download_slide_deck(
                 notebook_id, output_path, artifact_id, progress_callback=None
-            ))
+            )
         elif artifact_type == "infographic":
-            saved_path = asyncio.run(client.download_infographic(
+            saved_path = await client.download_infographic(
                 notebook_id, output_path, artifact_id, progress_callback=None
-            ))
+            )
         elif artifact_type == "data_table":
             saved_path = client.download_data_table(notebook_id, output_path, artifact_id)
         elif artifact_type == "quiz":
@@ -104,18 +103,18 @@ def download_artifact(
                     "status": "error",
                     "error": f"Invalid output_format '{output_format}'. Use: json, markdown, html",
                 }
-            saved_path = asyncio.run(client.download_quiz(
+            saved_path = await client.download_quiz(
                 notebook_id, output_path, artifact_id, output_format
-            ))
+            )
         elif artifact_type == "flashcards":
             if output_format not in ("json", "markdown", "html"):
                 return {
                     "status": "error",
                     "error": f"Invalid output_format '{output_format}'. Use: json, markdown, html",
                 }
-            saved_path = asyncio.run(client.download_flashcards(
+            saved_path = await client.download_flashcards(
                 notebook_id, output_path, artifact_id, output_format
-            ))
+            )
         else:
             return {"status": "error", "error": f"Unhandled artifact type: {artifact_type}"}
         

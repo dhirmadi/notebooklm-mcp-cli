@@ -41,11 +41,10 @@ def research_start(
             }
 
         result = client.start_research(
+            notebook_id=notebook_id,
             query=query,
             source=source,
             mode=mode,
-            notebook_id=notebook_id,
-            title=title,
         )
 
         if result:
