@@ -101,6 +101,7 @@ nlm status artifacts <notebook>
 | `nlm video` | Create video overviews (create) |
 | `nlm data-table` | Create data tables (create) |
 | `nlm share` | Manage notebook sharing (status, public, private, invite) |
+| `nlm skill` | Install AI assistant skills (install, uninstall, list, show) |
 
 ### All Verb-First Commands
 
@@ -580,6 +581,57 @@ nlm share public <notebook-id>              # Enable public access
 nlm share private <notebook-id>             # Disable public access
 nlm share invite <notebook-id> <email> --role viewer  # Invite collaborator
 ```
+
+### Skill Commands (Install AI Assistant Skills)
+
+Install the NotebookLM skill for various AI coding assistants:
+
+```bash
+nlm skill list                              # Show installation status for all tools
+nlm skill install <tool>                    # Install at user level (default)
+nlm skill install <tool> --level project    # Install at project level
+nlm skill uninstall <tool>                  # Remove installed skill
+nlm skill show                              # Display skill content
+```
+
+**Supported Tools:**
+- `claude-code` - Claude Code CLI and Desktop (`~/.claude/skills/nlm-skill/`)
+- `opencode` - OpenCode AI assistant (`~/.config/opencode/skills/nlm-skill/`)
+- `gemini-cli` - Google Gemini CLI (`~/.gemini/skills/nlm-skill/`)
+- `antigravity` - Antigravity agent framework (`~/.gemini/antigravity/skills/nlm-skill/`)
+- `codex` - Codex AI assistant (appends to `~/.codex/AGENTS.md`)
+- `other` - Export all formats to `./nlm-skill-export/` for manual installation
+
+**Installation Levels:**
+- `user` (default): Installs to user config directory (e.g., `~/.claude/skills/nlm-skill/`)
+- `project`: Installs to current project directory (e.g., `.claude/skills/nlm-skill/`)
+
+**Examples:**
+```bash
+# Install for Claude Code at user level
+nlm skill install claude-code
+
+# Install for Codex at project level
+nlm skill install codex --level project
+
+# Check what's installed
+nlm skill list
+
+# Export all formats for manual installation
+nlm skill install other --level project
+# Creates ./nlm-skill-export/nlm-skill/ with SKILL.md and references
+
+# View skill content
+nlm skill show | head -50
+```
+
+**What Gets Installed:**
+- `SKILL.md` - Main skill file with NotebookLM CLI/MCP documentation
+- `references/` - Additional documentation (command_reference.md, troubleshooting.md, workflows.md)
+
+For Codex, it appends a compact section to AGENTS.md with markers for easy removal.
+
+**Note:** If the parent directory doesn't exist (e.g., `~/.claude/` for Claude Code), the installer will prompt you to either create it, switch to project-level installation, or cancel.
 
 ### Config Commands
 
