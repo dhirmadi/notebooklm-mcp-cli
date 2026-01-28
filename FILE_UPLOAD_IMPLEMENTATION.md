@@ -1,26 +1,70 @@
 # File Upload Implementation Summary
 
-## Problem
+## Overview
 
-The file upload feature was failing with a **CookieMismatch** error from Google. Even though valid cookies were being injected via CDP, Google detected the mismatch between:
-1. The session cookies (created in one browser environment)
-2. The new browser fingerprint/profile (fresh Chrome instance)
+File upload now supports **two methods**:
 
-## Root Cause
+1. **HTTP Resumable Upload** (Primary) - No Chrome required, works headless
+2. **Chrome Browser Automation** (Fallback) - For edge cases where HTTP fails
 
-The previous implementation:
+## HTTP Resumable Upload (Primary Method)
+
+### Implementation
+
+Uses Google's 3-step resumable upload protocol:
+
+1. **Register source intent** (RPC: `o4cbdc`) → get SOURCE_ID
+2. **Start upload session** (POST to `/upload/_/`) → get upload URL
+3. **Stream file content** → upload URL (memory-efficient streaming)
+
+### Code Structure
+
+- `SourceMixin._register_file_source()` - Step 1: Register and get SOURCE_ID
+- `SourceMixin._start_resumable_upload()` - Step 2: Get upload URL
+- `SourceMixin._upload_file_streaming()` - Step 3: Stream file content
+- `SourceMixin.add_file()` - Public API that orchestrates all 3 steps
+
+### Usage
+
+**Python:**
+```python
+from notebooklm_tools.core.client import NotebookLMClient
+
+client = NotebookLMClient()
+result = client.add_file(notebook_id="...", file_path="document.pdf")
+# Returns: {"id": "source-id", "title": "document.pdf"}
+```
+
+**CLI:**
+```bash
+nlm source add <notebook-id> --file document.pdf
+```
+
+**MCP:**
+```python
+notebook_add_file(notebook_id="...", file_path="/path/to/file.pdf")
+```
+
+### Advantages
+
+- ✅ No Chrome dependency
+- ✅ Works in headless/server environments
+- ✅ Memory-efficient streaming for large files
+- ✅ Faster and more reliable
+- ✅ No browser fingerprinting issues
+
+## Chrome Browser Automation (Fallback)
+
+### Previous Cookie Injection Issue
+
+The original browser-based implementation was failing with **CookieMismatch** errors:
 1. Launched Chrome with a persistent profile directory ✓
 2. **Extracted cookies from that session and stored them in JSON**
 3. **Injected those cookies back via CDP `Network.setCookie`** ✗
 
-The cookie injection approach caused Google to detect suspicious activity because:
-- Cookies injected via CDP don't match the browser's natural cookie storage
-- Google's security checks detect the fingerprint mismatch
-- Headless Chrome has different behavior than regular Chrome
+The cookie injection approach caused Google to detect suspicious activity.
 
-## Solution
-
-### Key Changes
+### Current Solution (Fallback Only)
 
 #### 1. Removed Cookie Injection ([uploader.py](src/notebooklm_tools/core/uploader.py))
 
@@ -77,21 +121,29 @@ if "accounts.google.com" in current_url:
     )
 ```
 
-#### 4. Wired Up CLI Command ([source.py](src/notebooklm_tools/cli/commands/source.py))
+#### 4. CLI Command Updated ([source.py](src/notebooklm_tools/cli/commands/source.py))
 
-Added `--file` option to the `source add` command:
+The `--file` option now uses HTTP by default, with `--browser` flag for fallback:
 
 ```bash
-# Upload a file via CLI
+# Upload via HTTP (default, recommended)
 nlm source add <notebook-id> --file document.pdf
 
-# Use headless mode (experimental)
-nlm source add <notebook-id> --file document.pdf --headless
+# Use browser automation (fallback)
+nlm source add <notebook-id> --file document.pdf --browser
 ```
 
 ## How It Works
 
-### Authentication Flow
+### HTTP Upload Flow (Primary)
+
+1. **Authentication**: Uses existing cookies from `~/.notebooklm-mcp-cli/profiles/default/cookies.json`
+2. **Register**: RPC call to register file intent → get SOURCE_ID
+3. **Start Session**: POST to upload endpoint → get upload URL
+4. **Stream Upload**: Stream file content in 64KB chunks → upload URL
+5. **Complete**: Source appears in notebook
+
+### Browser Upload Flow (Fallback)
 
 1. **Login** (`nlm login` or `notebooklm-mcp-auth`):
    - Launches Chrome with persistent profile: `~/.notebooklm-mcp-cli/chrome-profile`
@@ -99,7 +151,7 @@ nlm source add <notebook-id> --file document.pdf --headless
    - Cookies are stored in Chrome's profile (automatic)
    - Cookies are also extracted and saved to `~/.notebooklm-mcp-cli/profiles/default/cookies.json` (for API calls)
 
-2. **File Upload**:
+2. **File Upload** (when `--browser` flag is used):
    - Launches Chrome with the **same** persistent profile
    - Chrome automatically loads cookies from its profile storage (no injection!)
    - Browser navigates to the notebook

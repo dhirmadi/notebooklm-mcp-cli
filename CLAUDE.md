@@ -116,6 +116,7 @@ src/notebooklm_tools/
 | `notebook_add_url` | Add URL/YouTube source |
 | `notebook_add_text` | Add pasted text source |
 | `notebook_add_drive` | Add Google Drive source |
+| `notebook_add_file` | Add local file source (PDF, TXT, etc.) |
 | `notebook_query` | Ask questions (AI answers!) |
 | `source_list_drive` | List sources with types, check Drive freshness |
 | `source_sync_drive` | Sync stale Drive sources (REQUIRES confirmation) |
