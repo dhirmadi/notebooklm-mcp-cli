@@ -15,6 +15,7 @@ from notebooklm_tools.cli.utils import get_client, handle_error
 
 app = typer.Typer(help="Download artifacts from notebooks.")
 console = Console()
+err_console = Console(stderr=True)
 
 
 def download_with_progress(
@@ -71,7 +72,7 @@ def simple_download(
         saved = download_func(client)
         console.print(f"[green]✓[/green] Downloaded {artifact_name} to: {saved}")
     except ArtifactNotReadyError:
-        console.print(f"[red]Error:[/red] {artifact_name} is not ready or does not exist.", err=True)
+        err_console.print(f"[red]Error:[/red] {artifact_name} is not ready or does not exist.")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
@@ -94,7 +95,7 @@ def download_audio(
         )
         console.print(f"[green]✓[/green] Downloaded audio to: {saved}")
     except ArtifactNotReadyError:
-        console.print("[red]Error:[/red] Audio Overview is not ready or does not exist.", err=True)
+        err_console.print("[red]Error:[/red] Audio Overview is not ready or does not exist.")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
@@ -117,7 +118,7 @@ def download_video(
         )
         console.print(f"[green]✓[/green] Downloaded video to: {saved}")
     except ArtifactNotReadyError:
-        console.print("[red]Error:[/red] Video Overview is not ready or does not exist.", err=True)
+        err_console.print("[red]Error:[/red] Video Overview is not ready or does not exist.")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
@@ -166,7 +167,7 @@ def download_slide_deck(
         )
         console.print(f"[green]✓[/green] Downloaded slide deck to: {saved}")
     except ArtifactNotReadyError:
-        console.print("[red]Error:[/red] Slide deck is not ready or does not exist.", err=True)
+        err_console.print("[red]Error:[/red] Slide deck is not ready or does not exist.")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
@@ -189,7 +190,7 @@ def download_infographic(
         )
         console.print(f"[green]✓[/green] Downloaded infographic to: {saved}")
     except ArtifactNotReadyError:
-        console.print("[red]Error:[/red] Infographic is not ready or does not exist.", err=True)
+        err_console.print("[red]Error:[/red] Infographic is not ready or does not exist.")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
@@ -226,10 +227,9 @@ def download_quiz_cmd(
 
     # Validate format
     if format not in ("json", "markdown", "html"):
-        console.print(
+        err_console.print(
             f"[red]Error:[/red] Invalid format '{format}'. "
-            "Use: json, markdown, or html",
-            err=True
+            "Use: json, markdown, or html"
         )
         raise typer.Exit(1)
 
@@ -244,13 +244,12 @@ def download_quiz_cmd(
         )
         console.print(f"[green]✓[/green] Downloaded quiz to: {saved}")
     except ArtifactNotReadyError:
-        console.print(
-            "[red]Error:[/red] Quiz is not ready or does not exist.",
-            err=True
+        err_console.print(
+            "[red]Error:[/red] Quiz is not ready or does not exist."
         )
         raise typer.Exit(1)
     except ValueError as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
@@ -274,10 +273,9 @@ def download_flashcards_cmd(
 
     # Validate format
     if format not in ("json", "markdown", "html"):
-        console.print(
+        err_console.print(
             f"[red]Error:[/red] Invalid format '{format}'. "
-            "Use: json, markdown, or html",
-            err=True
+            "Use: json, markdown, or html"
         )
         raise typer.Exit(1)
 
@@ -292,13 +290,12 @@ def download_flashcards_cmd(
         )
         console.print(f"[green]✓[/green] Downloaded flashcards to: {saved}")
     except ArtifactNotReadyError:
-        console.print(
-            "[red]Error:[/red] Flashcards are not ready or do not exist.",
-            err=True
+        err_console.print(
+            "[red]Error:[/red] Flashcards are not ready or do not exist."
         )
         raise typer.Exit(1)
     except ValueError as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1)
     except Exception as e:
         handle_error(e)
