@@ -2,6 +2,8 @@
 
 ![NotebookLM MCP Header](docs/media/header.jpg)
 
+> 🎉 **January 2026 — Major Update!** This project has been completely refactored to unify **NotebookLM-MCP** and **NotebookLM-CLI** into a single, powerful package. One install gives you both the CLI (`nlm`) and MCP server (`notebooklm-mcp`). See the [CLI Guide](docs/CLI_GUIDE.md) and [MCP Guide](docs/MCP_GUIDE.md) for full documentation.
+
 **Programmatic access to Google NotebookLM** — via command-line interface (CLI) or Model Context Protocol (MCP) server.
 
 > **Note:** Tested with Pro/free tier accounts. May work with NotebookLM Enterprise accounts but has not been tested.
@@ -64,7 +66,7 @@ Then use natural language: *"Create a notebook about quantum computing and gener
 
 ## Important Disclaimer
 
-This MCP uses **internal APIs** that:
+This MCP and CLI use **internal APIs** that:
 - Are undocumented and may change without notice
 - Require cookie extraction from your browser (I have a tool for that!)
 
@@ -201,65 +203,17 @@ For detailed instructions and troubleshooting, see **[docs/AUTHENTICATION.md](do
 
 ## MCP Configuration
 
-> **⚠️ Context Window Warning:** This MCP provides **31 tools** which consume a significant portion of your context window. It's recommended to **disable the MCP when not actively using NotebookLM** to preserve context for your other work. In Claude Code, use `@notebooklm-mcp` to toggle it on/off, or use `/mcp` command.
- 
-### CLI Options
+> **⚠️ Context Window Warning:** This MCP provides **31 tools**. Disable it when not using NotebookLM to preserve context. In Claude Code: `@notebooklm-mcp` to toggle.
 
-You can configure the server using command-line arguments:
+### Quick Setup
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--transport`, `-t` | Transport protocol (`stdio`, `http`, `sse`) | `stdio` |
-| `--port`, `-p` | Port for HTTP/SSE transport | `8000` |
-| `--host`, `-H` | Host to bind for HTTP/SSE | `127.0.0.1` |
-| `--debug` | Enable verbose logging (API requests/responses) | `False` |
-| `--query-timeout` | Timeout for queries in seconds | `120.0` |
-
-### Environment Variables
-
-Alternatively, use environment variables:
-
-| Variable | Description |
-|----------|-------------|
-| `NOTEBOOKLM_MCP_TRANSPORT` | Transport type (`stdio`, `http`, `sse`) |
-| `NOTEBOOKLM_MCP_PORT` | Port to listen on |
-| `NOTEBOOKLM_MCP_HOST` | Host to bind |
-| `NOTEBOOKLM_MCP_DEBUG` | `true` to enable debug logging |
-| `NOTEBOOKLM_QUERY_TIMEOUT` | Query timeout in seconds |
-
-### HTTP Support (Open WebUI)
-Run as an HTTP server for remote access or multi-user setups:
-```bash
-notebooklm-mcp --transport http --port 8000
-```
-> See **[docs/MULTI_USER_ANALYSIS.md](docs/MULTI_USER_ANALYSIS.md)** for detailed multi-user deployment guides.
-
-### Claude Code (Recommended CLI Method)
-
-Use the built-in CLI command to add the MCP server:
-
-**Add for all projects (recommended):**
+**Claude Code / Gemini CLI:**
 ```bash
 claude mcp add --scope user notebooklm-mcp notebooklm-mcp
+gemini mcp add --scope user notebooklm-mcp notebooklm-mcp
 ```
 
-**Or add for current project only:**
-```bash
-claude mcp add notebooklm-mcp notebooklm-mcp
-```
-
-That's it! Restart Claude Code to use the MCP tools.
-
-**Verify installation:**
-```bash
-claude mcp list
-```
-
-<details>
-<summary>Alternative: Manual JSON Configuration</summary>
-
-If you prefer to edit the config file manually, add to `~/.claude.json`:
-
+**Cursor / VS Code / Claude Desktop** — Add to your config file:
 ```json
 {
   "mcpServers": {
@@ -270,40 +224,13 @@ If you prefer to edit the config file manually, add to `~/.claude.json`:
 }
 ```
 
-Restart Claude Code after editing.
-</details>
-
-### Cursor, VS Code, Claude Desktop & Other IDEs
-
-For tools that use JSON configuration files:
-
-| Tool | Config File Location |
-|------|---------------------|
+| Tool | Config Location |
+|------|-----------------|
 | Cursor | `~/.cursor/mcp.json` |
 | VS Code | `~/.vscode/mcp.json` |
-| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 
-**Step 1:** Find your installed path:
-```bash
-which notebooklm-mcp
-```
-
-This typically returns `/Users/<YOUR_USERNAME>/.local/bin/notebooklm-mcp` on macOS.
-
-**Step 2:** Add this configuration (replace the path with your result from Step 1):
-```json
-{
-  "mcpServers": {
-    "notebooklm-mcp": {
-      "command": "/Users/<YOUR_USERNAME>/.local/bin/notebooklm-mcp"
-    }
-  }
-}
-```
-
-Restart the application after adding the configuration.
-
-**Alternative: Use uvx (no permanent install needed):**
+**Run without installing (uvx):**
 ```json
 {
   "mcpServers": {
@@ -315,65 +242,7 @@ Restart the application after adding the configuration.
 }
 ```
 
-### Other MCP-Compatible Tools
-
-**CLI tools with built-in MCP commands** (AIDER, Codex, OpenCode, etc.):
-```bash
-<your-tool> mcp add notebooklm-mcp notebooklm-mcp
-```
-
-**Tools using JSON config files** — use the full path approach shown above.
-
-### Gemini CLI (Recommended CLI Method)
-
-Use the built-in CLI command to add the MCP server:
-
-**Add for all projects (recommended):**
-```bash
-gemini mcp add --scope user notebooklm-mcp notebooklm-mcp
-```
-
-**Or add for current project only:**
-```bash
-gemini mcp add notebooklm-mcp notebooklm-mcp
-```
-
-That's it! Restart Gemini CLI to use the MCP tools.
-
-**Verify installation:**
-```bash
-gemini mcp list
-```
-
-<details>
-<summary>Alternative: Manual JSON Configuration</summary>
-
-Add to `~/.gemini/settings.json` under `mcpServers` (run `which notebooklm-mcp` to find your path):
-```json
-"notebooklm-mcp": {
-  "command": "/Users/<YOUR_USERNAME>/.local/bin/notebooklm-mcp"
-}
-```
-
-Restart Gemini CLI after editing.
-</details>
-
-### Managing Context Window Usage
-
-Since this MCP has **31 tools**, it's good practice to disable it when not in use:
-
-**Claude Code:**
-```bash
-# Toggle on/off by @-mentioning in chat
-@notebooklm-mcp
-
-# Or use the /mcp command to enable/disable
-/mcp
-```
-
-**Cursor/Gemini CLI:**
-- Comment out the server in your config file when not needed
-- Or use your tool's MCP management features if available
+📚 **Full configuration details:** [MCP Guide](docs/MCP_GUIDE.md) — Server options, environment variables, HTTP transport, multi-user setup, and context window management.
 
 ## What You Can Do
 
