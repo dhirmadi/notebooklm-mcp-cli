@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Consistent `nlm-skill` folder naming across all installations
   - Complete documentation in AI docs (`nlm --ai`)
 
+## [0.2.4] - 2026-01-29
+
+### Fixed
+- Fixed `console.print` using invalid `err=True` parameter (now uses `err_console = Console(stderr=True)`)
+- Fixed verb-first commands passing OptionInfo objects instead of parameter values
+- Fixed studio command parameter mismatches (format→format_code, length→length_code, etc.)
+- Fixed studio methods not handling `source_ids=None` (now defaults to all notebook sources)
+
+### Changed
+- **Consolidated auth commands under login** - replaced `nlm auth status/list/delete` with `nlm login --check` and `nlm login profile list/delete/rename`
+- Studio commands now work without explicit `--source-ids` parameter (defaults to all sources in notebook)
+- Download commands now support notebook aliases (auto-resolved via `get_alias_manager().resolve()`)
+- Added `--confirm` flag to `nlm alias delete` command
+- Updated all documentation to reflect login command structure
+
+### Added
+- Integration tests for all CLI bug fixes (9 tests covering error handling, parameter passing, alias resolution)
+- `nlm login profile rename` command for renaming authentication profiles
+
 ## [0.1.14] - 2026-01-17
 
 ### Fixed
