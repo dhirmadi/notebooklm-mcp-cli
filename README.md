@@ -134,6 +134,62 @@ After upgrading, restart your AI tool to reconnect to the updated MCP server:
 - **Cursor:** Restart the application
 - **Gemini CLI:** Restart the CLI session
 
+## Upgrading from Legacy Versions
+
+If you previously installed the **separate** CLI and MCP packages, you need to migrate to the unified package.
+
+### Step 1: Check What You Have Installed
+
+```bash
+uv tool list | grep notebooklm
+```
+
+**Legacy packages to remove:**
+| Package | What it was |
+|---------|-------------|
+| `notebooklm-cli` | Old CLI-only package |
+| `notebooklm-mcp-server` | Old MCP-only package |
+
+### Step 2: Uninstall Legacy Packages
+
+```bash
+# Remove old CLI package (if installed)
+uv tool uninstall notebooklm-cli
+
+# Remove old MCP package (if installed)
+uv tool uninstall notebooklm-mcp-server
+```
+
+### Step 3: Install the Unified Package
+
+```bash
+uv tool install notebooklm-mcp-cli
+```
+
+### Step 4: Verify Installation
+
+```bash
+uv tool list | grep notebooklm
+```
+
+You should see only:
+```
+notebooklm-mcp-cli v0.2.0
+- nlm
+- notebooklm-mcp
+- notebooklm-mcp-auth
+```
+
+### Step 5: Re-authenticate
+
+Your existing cookies should still work, but if you encounter auth issues:
+
+```bash
+nlm login
+```
+
+> **Note:** MCP server configuration (in Claude Code, Cursor, etc.) does not need to change — the executable name `notebooklm-mcp` is the same.
+
 ## Uninstalling
 
 To completely remove the MCP:
