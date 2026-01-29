@@ -11,7 +11,7 @@ from ._utils import get_client, reset_client, logged_tool, ESSENTIAL_COOKIES
 def refresh_auth() -> dict[str, Any]:
     """Reload auth tokens from disk or run headless re-authentication.
 
-    Call this after running notebooklm-mcp-auth to pick up new tokens,
+    Call this after running `nlm login` to pick up new tokens,
     or to attempt automatic re-authentication if Chrome profile has saved login.
 
     Returns status indicating if tokens were refreshed successfully.
@@ -47,7 +47,7 @@ def refresh_auth() -> dict[str, Any]:
 
         return {
             "status": "error",
-            "error": "No cached tokens found. Run 'notebooklm-mcp-auth' to authenticate.",
+            "error": "No cached tokens found. Run 'nlm login' to authenticate.",
         }
     except Exception as e:
         return {"status": "error", "error": str(e)}
@@ -61,10 +61,10 @@ def save_auth_tokens(
     request_body: str = "",
     request_url: str = "",
 ) -> dict[str, Any]:
-    """Save NotebookLM cookies (FALLBACK method - try notebooklm-mcp-auth first!).
+    """Save NotebookLM cookies (FALLBACK method - try `nlm login` first!).
 
     IMPORTANT FOR AI ASSISTANTS:
-    - First, run `notebooklm-mcp-auth` via Bash/terminal (automated, preferred)
+    - First, run `nlm login` via Bash/terminal (automated, preferred)
     - Only use this tool if the automated CLI fails
 
     Args:

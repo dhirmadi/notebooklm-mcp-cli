@@ -32,9 +32,9 @@ mcp = FastMCP(
     name="notebooklm",
     instructions="""NotebookLM MCP - Access NotebookLM (notebooklm.google.com).
 
-**Auth:** If you get authentication errors, run `notebooklm-mcp-auth` via your Bash/terminal tool.
+**Auth:** If you get authentication errors, run `nlm login` via your Bash/terminal tool. This is the automated authentication method that handles everything. Only use save_auth_tokens as a fallback if the CLI fails.
 **Confirmation:** Tools with confirm param require user approval before setting confirm=True.
-**Studio:** After creating artifacts, poll studio_status for completion.
+**Studio:** After creating audio/video/infographic/slides, poll studio_status for completion.
 
 Consolidated tools:
 - source_add(type=url|text|drive|file): Add any source type

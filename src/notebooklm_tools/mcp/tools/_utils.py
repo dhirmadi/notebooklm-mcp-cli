@@ -52,7 +52,7 @@ def get_client() -> NotebookLMClient:
             else:
                 raise ValueError(
                     "No authentication found. Either:\n"
-                    "1. Run 'notebooklm-mcp-auth' to authenticate via Chrome, or\n"
+                    "1. Run 'nlm login' to authenticate via Chrome, or\n"
                     "2. Set NOTEBOOKLM_COOKIES environment variable manually"
                 )
 
