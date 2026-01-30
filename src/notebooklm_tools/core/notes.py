@@ -193,7 +193,7 @@ class NotesMixin(BaseClient):
         result = self._call_rpc(self.RPC_UPDATE_NOTE, params, f"/notebook/{notebook_id}")
 
         # Response is null on success
-        if result is not None or True:  # API returns null on success
+        if result is None:  # API returns null on success
             return {
                 "id": note_id,
                 "title": new_title,
