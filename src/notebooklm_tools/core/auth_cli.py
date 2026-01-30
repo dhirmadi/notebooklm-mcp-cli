@@ -59,6 +59,52 @@ def get_chrome_user_data_dir() -> str | None:
     return None
 
 
+def cleanup_chrome_profile_cache(profile_dir: Path | None = None) -> int:
+    """Remove unnecessary cache directories to minimize profile size.
+    
+    Keeps cookies and login data intact while removing caches that can
+    grow to hundreds of MB. Safe to run after successful authentication.
+    
+    Args:
+        profile_dir: Chrome profile directory. If None, uses default.
+        
+    Returns:
+        Number of bytes freed.
+    """
+    import shutil
+    
+    if profile_dir is None:
+        profile_dir = get_chrome_profile_dir()
+    
+    # Cache directories that are safe to remove (not needed for auth)
+    cache_dirs = [
+        "Cache",
+        "Code Cache", 
+        "Service Worker",
+        "GPUCache",
+        "DawnWebGPUCache",
+        "DawnGraphiteCache",
+        "ShaderCache",
+        "GrShaderCache",
+    ]
+    
+    bytes_freed = 0
+    default_dir = profile_dir / "Default"
+    
+    for cache_dir in cache_dirs:
+        cache_path = default_dir / cache_dir
+        if cache_path.exists():
+            try:
+                # Calculate size before deletion
+                size = sum(f.stat().st_size for f in cache_path.rglob("*") if f.is_file())
+                shutil.rmtree(cache_path, ignore_errors=True)
+                bytes_freed += size
+            except Exception:
+                pass
+    
+    return bytes_freed
+
+
 def launch_chrome(port: int, headless: bool = False) -> "subprocess.Popen | None":
     """Launch Chrome with remote debugging enabled.
 
@@ -427,6 +473,9 @@ def run_headless_auth(
         )
         save_tokens_to_cache(tokens)
         
+        # Clean up cache to minimize profile size
+        cleanup_chrome_profile_cache()
+        
         return tokens
         
     except Exception:
@@ -593,6 +642,10 @@ def run_auth_flow(
 
     # Save to cache
     save_tokens_to_cache(tokens)
+    
+    # Clean up cache to minimize profile size
+    bytes_freed = cleanup_chrome_profile_cache()
+    mb_freed = bytes_freed / (1024 * 1024)
 
     print()
     print("=" * 40)
@@ -602,6 +655,8 @@ def run_auth_flow(
     print(f"Cookies: {len(cookies)} extracted")
     print(f"CSRF Token: {'Yes' if csrf_token else 'No (will be auto-extracted)'}")
     print(f"Session ID: {session_id or 'Will be auto-extracted'}")
+    if mb_freed > 1:
+        print(f"Cache cleaned: {mb_freed:.1f} MB freed")
     print()
     print(f"Tokens cached to: {get_cache_path()}")
     print()
