@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] - 2026-01-30
+
+### Removed
+- **Redundant CLI commands** - Removed `nlm download-verb` and `nlm research-verb` (use `nlm download` and `nlm research` instead)
+
+### Fixed
+- **Documentation alignment** - Synchronized all CLI documentation with actual CLI behavior:
+  - Fixed export command syntax: `nlm export to-docs` / `nlm export to-sheets` (not `docs`/`sheets`)
+  - Fixed download command syntax: use `-o` flag for output path
+  - Fixed slides format values: `detailed_deck` / `presenter_slides` (not `detailed`/`presenter`)
+  - Removed non-existent `nlm mindmap list` from documentation
+
 ## [0.2.6] - 2026-01-30
 
 ### Fixed
