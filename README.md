@@ -18,9 +18,9 @@
 
 ### CLI Demos
 
-| **CLI Overview** |
-|:---:|
-| [![CLI Overview](https://img.youtube.com/vi/XyXVuALWZkE/mqdefault.jpg)](https://www.youtube.com/watch?v=XyXVuALWZkE) |
+| **CLI Overview** | **CLI, MCP & Skills Deep Dive** |
+|:---:|:---:|
+| [![CLI Overview](https://img.youtube.com/vi/XyXVuALWZkE/mqdefault.jpg)](https://www.youtube.com/watch?v=XyXVuALWZkE) | [![CLI, MCP & Skills](https://img.youtube.com/vi/ZQBQigFK-E8/mqdefault.jpg)](https://www.youtube.com/watch?v=ZQBQigFK-E8) |
 
 
 ## Two Ways to Use
