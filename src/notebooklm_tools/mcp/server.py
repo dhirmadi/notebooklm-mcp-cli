@@ -171,8 +171,10 @@ Examples:
     set_query_timeout(args.query_timeout)
     
     # Run server with appropriate transport
+    # show_banner=False prevents Rich box-drawing output that can corrupt
+    # the JSON-RPC protocol on Windows (especially with non-English locales)
     if args.transport == "stdio":
-        mcp.run()
+        mcp.run(show_banner=False)
     elif args.transport == "http":
         mcp.run(
             transport="streamable-http",
@@ -180,12 +182,14 @@ Examples:
             port=args.port,
             path=args.path,
             stateless_http=args.stateless,
+            show_banner=False,
         )
     elif args.transport == "sse":
         mcp.run(
             transport="sse",
             host=args.host,
             port=args.port,
+            show_banner=False,
         )
 
 

@@ -87,9 +87,9 @@ def login_callback(
         False, "--check",
         help="Only check if current auth is valid",
     ),
-    profile: str = typer.Option(
-        "default", "--profile", "-p",
-        help="Profile name to save credentials to",
+    profile: Optional[str] = typer.Option(
+        None, "--profile", "-p",
+        help="Profile name (uses config default if not specified)",
     ),
     cookie_file: Optional[str] = typer.Option(
         None, "--file", "-f",
@@ -105,10 +105,15 @@ def login_callback(
     """
     from notebooklm_tools.core.auth import AuthManager
     from notebooklm_tools.core.exceptions import NLMError
+    from notebooklm_tools.utils.config import get_config
 
     # If a subcommand is invoked, don't run login logic
     if ctx.invoked_subcommand is not None:
         return
+
+    # Use config default if no profile specified
+    if profile is None:
+        profile = get_config().auth.default_profile
 
     auth = AuthManager(profile)
 

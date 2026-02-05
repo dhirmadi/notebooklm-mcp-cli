@@ -10,12 +10,15 @@ This mixin provides all notebook-related operations:
 - delete_notebook: Delete a notebook
 """
 
+import logging
 from typing import Any
 
 from .base import BaseClient
 from . import constants
 from .data_types import Notebook
 from .utils import parse_timestamp
+
+logger = logging.getLogger(__name__)
 
 
 # Ownership constants (from metadata position 0)
@@ -41,27 +44,27 @@ class NotebookMixin(BaseClient):
         url = self._build_url(self.RPC_LIST_NOTEBOOKS)
 
         if debug:
-            print(f"[DEBUG] URL: {url}")
-            print(f"[DEBUG] Body: {body[:200]}...")
+            logger.debug(f"URL: {url}")
+            logger.debug(f"Body: {body[:200]}...")
 
         response = client.post(url, content=body)
         response.raise_for_status()
 
         if debug:
-            print(f"[DEBUG] Response status: {response.status_code}")
-            print(f"[DEBUG] Response length: {len(response.text)} chars")
+            logger.debug(f"Response status: {response.status_code}")
+            logger.debug(f"Response length: {len(response.text)} chars")
 
         parsed = self._parse_response(response.text)
         result = self._extract_rpc_result(parsed, self.RPC_LIST_NOTEBOOKS)
 
         if debug:
-            print(f"[DEBUG] Parsed chunks: {len(parsed)}")
-            print(f"[DEBUG] Result type: {type(result)}")
+            logger.debug(f"Parsed chunks: {len(parsed)}")
+            logger.debug(f"Result type: {type(result)}")
             if result:
-                print(f"[DEBUG] Result length: {len(result) if isinstance(result, list) else 'N/A'}")
+                logger.debug(f"Result length: {len(result) if isinstance(result, list) else 'N/A'}")
                 if isinstance(result, list) and len(result) > 0:
-                    print(f"[DEBUG] First item type: {type(result[0])}")
-                    print(f"[DEBUG] First item: {str(result[0])[:500]}...")
+                    logger.debug(f"First item type: {type(result[0])}")
+                    logger.debug(f"First item: {str(result[0])[:500]}...")
 
         notebooks = []
         if result and isinstance(result, list):

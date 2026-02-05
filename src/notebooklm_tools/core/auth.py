@@ -7,10 +7,14 @@ Storage location: ~/.notebooklm-mcp-cli/ (unified for CLI and MCP)
 """
 
 import json
+import logging
 import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
+
+# Use logging instead of print to avoid corrupting MCP stdio protocol
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -106,11 +110,11 @@ def load_cached_tokens() -> AuthTokens | None:
         # Just warn if tokens are old, but still return them
         # Let the API client's functional check determine validity
         if tokens.is_expired():
-            print("Note: Cached tokens are older than 1 week. They may still work.")
+            logger.warning("Cached tokens are older than 1 week. They may still work.")
 
         return tokens
     except (json.JSONDecodeError, KeyError, TypeError) as e:
-        print(f"Failed to load cached tokens: {e}")
+        logger.warning(f"Failed to load cached tokens: {e}")
         return None
 
 
@@ -125,7 +129,7 @@ def save_tokens_to_cache(tokens: AuthTokens, silent: bool = False) -> None:
     with open(cache_path, "w") as f:
         json.dump(tokens.to_dict(), f, indent=2)
     if not silent:
-        print(f"Auth tokens cached to {cache_path}")
+        logger.info(f"Auth tokens cached to {cache_path}")
 
 
 def extract_tokens_via_chrome_devtools() -> AuthTokens | None:
